@@ -17,7 +17,7 @@ var loadCell = function(collection, callback, lattitude, longitude) {
 }
 
 var readData = function(db, callback) {
-    loadCell(db.collection("data"), callback, 39.055411901484248, -76.97202793402198);
+    loadCell(db.collection("crime"), callback, 39.055411901484248, -76.97202793402198);
 };
 
 MongoClient.connect(url, function(err, db) {
