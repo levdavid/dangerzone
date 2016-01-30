@@ -33,8 +33,8 @@ router.route('/crime')
 	//create a crime (post request to http://localhost:8000)
 	.post(function(req, res) {
 		var crime = new Crime();
-		crime.date = req.body.date;
-		crime.name = req.body.name;
+		crime.lon = req.body.lon;
+		crime.lat = req.body.lat;
 
 		crime.save(function(err) {
 			if(err)
@@ -52,6 +52,17 @@ router.route('/crime')
 		});
 	});
 
+
+//Search for the element based on lat and lon
+router.route('/crime/:lon/:lat')
+	.get(function(req, res) {
+		Crime.findOne({'lon':req.params.lon,'lat':req.params.lat}, function(err, crime){
+			if (err)
+				res.send(err);
+			res.json(crime);
+		});
+	});
+
 //on routes that end in /crime/:crime_id
 router.route('/crime/:crime_id')
 	
@@ -60,7 +71,7 @@ router.route('/crime/:crime_id')
 		Crime.findById(req.params.crime_id, function(err, crime){
 			if (err)
 				res.send(err);
-			res.json(crime)
+			res.json(crime);
 		});
 	})
 
