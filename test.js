@@ -4,19 +4,25 @@ var ObjectId = require('mongodb').ObjectID;
 var util = require('./util.js');
 var url = 'mongodb://localhost:27017/dangerzone';
 
-var readData = function(collection, callback, lattitude, longitude, distance) {
-    var query = { "lattitude" : { $gt: lattitude - distance, $lt: lattitude + distance }, 
-        "longitude" : { $gt: lattitude - distance, $lt: lattitude + distance }};
-    var cursor = collection.find(query);
+var loadCell = function(collection, callback, lattitude, longitude) {
+    cellName = util.getCellName(lattitude, longitude);
+    var cursor = collection.find({ "cellName": cellName });
     cursor.each(function(err, doc) {
         assert.equal(err, null);
-        if (doc != null)
+        if (doc != null) {
             console.log(doc);
+        }
+        callback();
     });
-    callback();
 }
+
+var readData = function(db, callback) {
+    loadCell(db.collection("data"), callback, 39.055411901484248, -76.97202793402198);
+};
 
 MongoClient.connect(url, function(err, db) {
     assert.equal(null, err);
-    readData(db.collection("crimes"), function() {db.close;}, 39.090566576040032,  -77.153181723299696, 0.001);
+    readData(db, function() {
+        db.close();
+    });
 });
