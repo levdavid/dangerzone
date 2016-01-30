@@ -64,7 +64,7 @@ router.route('/crime/:lat/:lon')
          var cursor = collection.find({ "cellName" : cellName });
          cursor.each(function(err, doc) {
             if (doc != null) {
-               var danger = Math.max(Math.min(doc.incidents.length/75,5),1);
+               var danger = Math.max(Math.min(doc.incidents.length/40,5),1);
                res.json({ "danger" : danger.toPrecision(1) })
             } else {
                res.json({ "danger" : "1" });
