@@ -1,5 +1,8 @@
 //base install
 var express = require('express');
+var url = 'mongodb://localhost:27017/dangerzone';
+var util = require('./util.js');
+var MongoClient = require('mongodb').MongoClient;
 var app = express();
 var bodyParser = require('body-parser');
 
@@ -54,13 +57,24 @@ router.route('/crime')
 
 
 //Search for the element based on lat and lon
-router.route('/crime/:lon/:lat')
+router.route('/crime/:lat/:lon')
 	.get(function(req, res) {
-		Crime.findOne({'lon':req.params.lon,'lat':req.params.lat}, function(err, crime){
-			if (err)
-				res.send(err);
-			res.json(crime);
-		});
+      var loadCell = function(collection, callback, lattitude, longitude) {
+         cellName = util.getCellName(lattitude, longitude);
+         var cursor = collection.find({ "cellName" : cellName });
+         cursor.each(function(err, doc) {
+            if (doc != null) {
+               var danger = Math.min(doc.incidents.length/75,5);
+               res.json({ "danger" : danger.toPrecision(1) })
+            } else {
+               res.json({ "danger" : "1" });
+            }
+            callback();
+         });
+      }
+      MongoClient.connect(url, function(err, db) {
+         loadCell(db.collection("crime"), function() { db.close() }, req.params.lat, req.params.lon);
+      });
 	});
 
 //on routes that end in /crime/:crime_id
