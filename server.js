@@ -13,7 +13,7 @@ var Crime = require('./app/models/crime'); //using this within our database
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json());
 
-var port = process.env.PORT || 8080;
+var port = process.env.PORT || 80;
 
 var router = express.Router();
 
@@ -89,4 +89,4 @@ router.route('/crime/:crime_id')
 app.use('/api',  router);
 
 app.listen(port);
-console.log('Magic happens on port' + port);
+console.log('Magic happens on port ' + port);
