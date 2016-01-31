@@ -4,7 +4,7 @@ var cellPrecision = 5;
 var getCellName = function(lattitude, longitude, dlat, dlon) {
     var lat = lattitude * Math.pow(10,(cellPrecision - basePrecision));
     var lon = longitude * Math.pow(10,(cellPrecision - basePrecision));
-    return Math.floor(lat + dlat) + ":" + Math.floor(lon + dlon);
+    return (Math.floor(lat) + dlat) + ":" + (Math.floor(lon) + dlon);
 }
 
 var url = 'mongodb://localhost:27017/dangerzone';
@@ -28,11 +28,16 @@ exports.storeIncident = function(db, lattitude, longitude, date, type) {
 }
 
 var pollByName = function(db, name) {
-    var cursor = db.collection("crime").find({ "cellName" : name });
-    if (cursor == null || !cursor.hasNext())
-        return [];
-    else
-        return cursor.next()["incidents"];
+   var cursor = db.collection("crime").find({ "cellName" : name });
+   if (cursor != null) {
+      cursor.each(function(err, doc) {
+         if (doc != null) {
+            console.log(doc.incidents);
+            return doc.incidents;
+         }
+      });
+   }
+   return [];
 }
 
 exports.pollCell = function(db, lattitude, longitude) {
@@ -40,10 +45,13 @@ exports.pollCell = function(db, lattitude, longitude) {
 }
 
 exports.pollCells = function(db, lattitude, longitude) {
+   var offset = [-1,0,1];
     var output = [];
-    for (dx in [-1,0,1])
-        for (dy in [-1,0,1])
-            output = output.concat(pollByName(db, lattitude, longitude, dx, dy));
+    for (x in offset)
+        for (y in offset) {
+           pollByName(db, getCellName(lattitude, longitude, offset[x], offset[y]))
+              output = output.concat();
+        }
 }
 
 var distance = function(latA, lonA, latB, lonB) {
