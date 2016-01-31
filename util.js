@@ -27,31 +27,37 @@ exports.storeIncident = function(db, lattitude, longitude, date, type) {
     db.collection("crime").update(filter, update, options);
 }
 
-var pollByName = function(db, name) {
+var pollByName = function(db, name, callback) {
    var cursor = db.collection("crime").find({ "cellName" : name });
-   if (cursor != null) {
-      cursor.each(function(err, doc) {
-         if (doc != null) {
-            console.log(doc.incidents);
-            return doc.incidents;
-         }
-      });
-   }
-   return [];
+   cursor.each(function(err, doc) {
+      if (err != null) {
+         callback(err, null);
+      }
+      if (doc != null) {
+         callback(null, doc.incidents);
+      }
+   });
 }
 
-exports.pollCell = function(db, lattitude, longitude) {
-    return pollByName(db, getCellName(lattitude, longitude, 0, 0));
+exports.pollCell = function(db, lattitude, longitude, callback) {
+    pollByName(db, getCellName(lattitude, longitude, 0, 0), callback);
 }
 
-exports.pollCells = function(db, lattitude, longitude) {
+exports.pollCells = function(db, lattitude, longitude, callback) {
    var offset = [-1,0,1];
+   var responseCount = 0;
     var output = [];
+    var combiner = function(err, arr) {
+       if (err != null)
+          callback(err, null);
+       output = output.concat(arr);
+       responseCount = responseCount + 1;
+       if (responseCount == 9)
+          callback(null, output);
+    }
     for (x in offset)
-        for (y in offset) {
-           pollByName(db, getCellName(lattitude, longitude, offset[x], offset[y]))
-              output = output.concat();
-        }
+        for (y in offset) 
+           pollByName(db, getCellName(lattitude, longitude, offset[x], offset[y]), combiner)
 }
 
 var distance = function(latA, lonA, latB, lonB) {
@@ -60,17 +66,21 @@ var distance = function(latA, lonA, latB, lonB) {
     return latD*latD + lonD*lonD;
 }
 
-exports.pollDistance = function(db, lattitude, longitude, radius) {
-    var max = radius*radius;
-    var input = exports.pollCells(db, lattitude, longitude);
-    var output = [];
-    for (i in input) {
-        var d = distance(lattitude, longitude,
-                input[i]["lattitude"], input[i]["longitude"]);
-        if (d < max)
+exports.pollDistance = function(db, lattitude, longitude, radius, callback) {
+   var max = radius*radius;
+   var cullFilter = function(err, input) {
+      if (err != null)
+         callback(err, input);
+      var output = [];
+      for (i in input) {
+         var d = distance(lattitude, longitude,
+               input[i]["lattitude"], input[i]["longitude"]);
+         if (d < max)
             output[output.length] = input[i];
-    }
-    return output;
+      }
+      callback(null, output);
+   }
+   exports.pollCells(db, lattitude, longitude, cullFilter);
 }
 
 
