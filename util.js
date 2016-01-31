@@ -8,14 +8,6 @@ var getCellName = function(lattitude, longitude, dlat, dlon) {
 }
 
 var url = 'mongodb://localhost:27017/dangerzone';
-var collectionName = "crime";
-var cellNameField = "cellName";
-var incidentsArrayField = "incidents";
-
-exports.lattitudeFieldName = "lattitude";
-exports.longitudeFieldName = "longitude";
-exports.dateFieldName = "date";
-exports.typeFieldName = "type";
 
 exports.connect = function(handle) {
     require('mongodb').MongoClient.connect(url, handle);
@@ -25,22 +17,22 @@ var options = { upsert: true };
 
 exports.storeIncident = function(db, lattitude, longitude, date, type) {
     var data = {
-        lattitudeFieldName : lattitude,
-        longitudeFieldName : longitude,
-        dateFieldName : date,
-        typeFieldName : type
+        "lattitude" : lattitude,
+        "longitude" : longitude,
+        "date" : date,
+        "type" : type
     }
-    var filter = { cellNameField : getCellName(lattitude, longitude, 0, 0) };
-    var update = { $push: { incidentsArrayField : data }};
-    db.collection(collectionName).update(filter, update, options);
+    var filter = { "cellName" : getCellName(lattitude, longitude, 0, 0) };
+    var update = { $push: { "incidents" : data }};
+    db.collection("crime").update(filter, update, options);
 }
 
 var pollByName = function(db, name) {
-    var cursor = db.collection(collectionName).find({ cellNameField : name });
+    var cursor = db.collection("crime").find({ "cellName" : name });
     if (cursor == null || !cursor.hasNext())
         return [];
     else
-        return cursor.next()[incidentsArrayField];
+        return cursor.next()["incidents"];
 }
 
 exports.pollCell = function(db, lattitude, longitude) {
@@ -66,7 +58,7 @@ exports.pollDistance = function(db, lattitude, longitude, radius) {
     var output = [];
     for (i in input) {
         var d = distance(lattitude, longitude,
-                input[i][lattitudeField], input[i][longitudeField]);
+                input[i]["lattitude"], input[i]["longitude"]);
         if (d < max)
             output[output.length] = input[i];
     }

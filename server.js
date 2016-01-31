@@ -24,9 +24,6 @@ router.get('/', function(req, res) {
 	res.json({ message: 'hooray! welcome to our api!'});
 });
 
-var apiErrorField = "error";
-var apiFieldName = "danger";
-
 //Search for the element based on lattitude and longitude
 router.route('/crime/:lat/:lon')
     .get(function(req, res) {
@@ -37,9 +34,9 @@ router.route('/crime/:lat/:lon')
             if (err != null) {
                 var incidents = util.pollDistance(db, lattitude, longitude, 0.001);
                 var danger = Math.max(5, incidents.length / 25 + 1);
-                res.json({ apiFieldName : danger, apiErrorField : false});
+                res.json({ "danger" : danger, "error" : false});
             } else
-                res.json({ apiFieldName : 1, apiErrorField : true });
+                res.json({ "danger" : 1, "error" : true });
             db.close();
         }
         util.connect(reportDanger);
@@ -49,3 +46,4 @@ router.route('/crime/:lat/:lon')
 app.use('/api',  router);
 
 app.listen(port);
+console.out("Listening...");
