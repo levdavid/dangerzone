@@ -31,7 +31,7 @@ router.route('/crime/:lat/:lon')
         var longitude = req.params.lon;
         console.log("Processing " + lattitude + "/" + longitude);
         var reportDanger = function(err, db) {
-            if (err != null) {
+            if (err == null) {
                 var incidents = util.pollDistance(db, lattitude, longitude, 0.001);
                 var danger = Math.max(5, incidents.length / 25 + 1);
                 res.json({ "danger" : danger, "error" : false});
