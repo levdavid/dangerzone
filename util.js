@@ -54,7 +54,7 @@ var distance = function(latA, lonA, latB, lonB) {
 
 exports.pollDistance = function(db, lattitude, longitude, radius) {
     var max = radius*radius;
-    var input = pollCells(db, lattitude, longitude);
+    var input = exports.pollCells(db, lattitude, longitude);
     var output = [];
     for (i in input) {
         var d = distance(lattitude, longitude,
