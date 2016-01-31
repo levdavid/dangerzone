@@ -43,7 +43,7 @@ exports.pollCells = function(db, lattitude, longitude) {
     var output = [];
     for (dx in [-1,0,1])
         for (dy in [-1,0,1])
-            output = output.concat(pollByName(db, lattitude, longitude, x, y));
+            output = output.concat(pollByName(db, lattitude, longitude, dx, dy));
 }
 
 var distance = function(latA, lonA, latB, lonB) {
