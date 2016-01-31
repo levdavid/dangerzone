@@ -1,3 +1,3 @@
 #/bin/bash
 
-node < loadraw.js
+time node data-import.js
