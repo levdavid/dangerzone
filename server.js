@@ -46,4 +46,4 @@ router.route('/crime/:lat/:lon')
 app.use('/api',  router);
 
 app.listen(port);
-console.out("Listening...");
+console.log("Listening...");
